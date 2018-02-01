@@ -12,6 +12,11 @@ module.exports = (app, passport) => {
 	});
 
 	//app.post('/login', passport.authenticate());
+    app.post('/login', passport.authenticate('local-login', {
+        successRedirect: '/profile',
+        failureRedirect: '/login',
+        failureFlash: true
+    }));
 
 	app.get('/signup', (req, res) => {
 		res.render('signup', {
@@ -25,9 +30,26 @@ module.exports = (app, passport) => {
 		failureFlash: true
 	}));
 
-	app.get('/profile', (req, res) => {
+	app.get('/profile',isLoggedIn ,(req, res) => {
 		res.render('profile', {
 			user: req.user
 		})
-	})
-}
+	});
+
+    app.get('/logout', (req, res)=> {
+    	console.log('deslogueado')
+        req.logout();
+        res.redirect('/');
+    });
+
+    //midlewere
+    function isLoggedIn(req, res, next) {
+        //si esta autenticado, entonces que continue con la siguiente ruta
+        if(req.isAuthenticated()) {
+            return next();
+        }
+        return res.redirect('/');
+
+
+    }
+};
